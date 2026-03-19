@@ -2252,63 +2252,26 @@ vertical-align: -.125em;
 <section id="carga-de-datos-y-overview-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="carga-de-datos-y-overview-de-datos">Carga de datos y overview de datos</h2>
 <p>Cargamos las librerías que serán necesarias para leer, limpiar y analizar los datos. La librería <code>tidyverse</code> contiene paquetes y funciones que se utilizan para la manipulación, limpieza y visualización de datos de manera coherente y eficiente (siguiendo la filosofía <em>tidy</em>). Por otro lado, <code>skimr</code> se utiliza principalmente para proporcionar un resumen estadístico rápido y completo de los dataframes, permitiendo ver de un vistazo la distribución de los datos y la cantidad de valores faltantes. Y, <code>janitor</code>, es una librería esencial en el mundo “Tidyverse” que se especializa en tareas sucias y repetitivas de limpieza, como normalizar nombres de columnas o quitar filas/columnas vacías que suelen venir en archivos Excel o CSV mal formados.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.6
-✔ forcats   1.0.1     ✔ stringr   1.6.0
-✔ ggplot2   4.0.1     ✔ tibble    3.3.0
-✔ lubridate 1.9.4     ✔ tidyr     1.3.2
-✔ purrr     1.2.0     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: &#39;janitor&#39;
-
-The following objects are masked from &#39;package:stats&#39;:
-
-    chisq.test, fisher.test</code></pre>
-</div>
-</div>
 <p>Definimos una función que lee los datos y de un resumen de qué tratan los datos.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>load_data <span class="ot">&lt;-</span> <span class="cf">function</span>(path, <span class="at">skip =</span> <span class="dv">0</span>, <span class="at">skim_it =</span> <span class="cn">FALSE</span>) {</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Lee los datos y tira todas las columnas que esten llenas de NAs</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(path, <span class="at">skip =</span> skip) <span class="sc">|&gt;</span> <span class="fu">remove_empty</span>(<span class="at">which =</span> <span class="st">&quot;cols&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">clean_names</span>()</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Printea los nombres de las columnas usando cat</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">Nombres de las columnas procesadas:</span><span class="sc">\n\n</span><span class="st">&quot;</span>, <span class="fu">names</span>(data), <span class="at">sep =</span> <span class="st">&quot; | &quot;</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>) <span class="co"># Espaciado</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Resumen</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (skim_it) {</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">skim</span>(data))  </span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>load_data <span class="ot">&lt;-</span> <span class="cf">function</span>(path, <span class="at">skip =</span> <span class="dv">0</span>, <span class="at">skim_it =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Lee los datos y tira todas las columnas que esten llenas de NAs</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(path, <span class="at">skip =</span> skip) <span class="sc">|&gt;</span> <span class="fu">remove_empty</span>(<span class="at">which =</span> <span class="st">&quot;cols&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">clean_names</span>()</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Printea los nombres de las columnas usando cat</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">Nombres de las columnas procesadas:</span><span class="sc">\n\n</span><span class="st">&quot;</span>, <span class="fu">names</span>(data), <span class="at">sep =</span> <span class="st">&quot; | &quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>) <span class="co"># Espaciado</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Resumen</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (skim_it) {</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">skim</span>(data))  </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Usamos la función para leer los datos, definiendo primero las rutas relativas</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>metadata_path <span class="ot">=</span> <span class="st">&quot;../data/metadata_countries_internet_users.csv&quot;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>metadata <span class="ot">=</span> <span class="fu">load_data</span>(metadata_path)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>New names:
-Rows: 265 Columns: 6
-── Column specification
-──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
-(5): Country Code, Region, IncomeGroup, SpecialNotes, TableName lgl (1): ...6
-ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-Specify the column types or set `show_col_types = FALSE` to quiet this message.
-• `` -&gt; `...6`</code></pre>
-</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 
@@ -2318,20 +2281,6 @@ Nombres de las columnas procesadas:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">=</span> <span class="st">&quot;../data/internet_users_world_wide.csv&quot;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>data_wide <span class="ot">=</span> <span class="fu">load_data</span>(data_path, <span class="at">skip=</span><span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>New names:
-Rows: 266 Columns: 71
-── Column specification
-──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
-(4): Country Name, Country Code, Indicator Name, Indicator Code dbl (36): 1990,
-1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, ... lgl (31): 1960,
-1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, ...
-ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-Specify the column types or set `show_col_types = FALSE` to quiet this message.
-• `` -&gt; `...71`</code></pre>
-</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 
@@ -2354,8 +2303,6 @@ Nombres de las columnas procesadas:
 <section id="identificamos-los-niveles-de-ingreso-en-la-tabla-de-datos" class="level3">
 <h3 class="anchored" data-anchor-id="identificamos-los-niveles-de-ingreso-en-la-tabla-de-datos">Identificamos los niveles de ingreso en la tabla de datos</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>income_sumarize <span class="ot">=</span> metadata <span class="sc">|&gt;</span> <span class="fu">group_by</span>(income_group) <span class="sc">|&gt;</span> <span class="fu">summarize</span>(<span class="at">number_of_countries =</span> <span class="fu">n</span>())</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>income_sumarize</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 2
   income_group        number_of_countries
@@ -2372,12 +2319,6 @@ Nombres de las columnas procesadas:
 <h3 class="anchored" data-anchor-id="ajustamos-la-tabla-de-datos-para-prepararla-con-el-join">Ajustamos la tabla de datos para prepararla con el <em>join</em></h3>
 <p>Transformamos a formato <em>long</em> y, luego filtramos los años que nos interesan.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data_long <span class="ot">=</span> data_wide <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols=</span>(x1990<span class="sc">:</span>x2025), <span class="at">names_to =</span> <span class="st">&quot;year&quot;</span>, <span class="at">values_to =</span> <span class="st">&#39;indicator_value&#39;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.numeric</span>(<span class="fu">str_remove</span>(year, <span class="st">&quot;x&quot;</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, country_code, indicator_name, indicator_value) <span class="sc">|&gt;</span> </span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="dv">2013</span><span class="sc">&lt;=</span>year, year<span class="sc">&lt;=</span><span class="dv">2023</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>data_long</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2,926 × 4
     year country_code indicator_name                             indicator_value
@@ -2400,22 +2341,6 @@ Nombres de las columnas procesadas:
 <h3 class="anchored" data-anchor-id="unimos-las-dos-tablas-de-datos">Unimos las dos tablas de datos</h3>
 <p>Hacemos un <code>left_join</code> con la tabla de datos, usando como identificador la columna de <code>country_code</code>. Luego, nos quedamos con los años del 2013 al 2023 y las columnas de income_group, indicator_name y valores.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Definimos los niveles en el orden jerárquico correcto</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>niveles_ingreso <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Low income&quot;</span>, <span class="st">&quot;Lower middle income&quot;</span>, <span class="st">&quot;Upper middle income&quot;</span>, <span class="st">&quot;High income&quot;</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>data_per_income <span class="ot">&lt;-</span> data_long <span class="sc">|&gt;</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(metadata, <span class="at">by =</span> <span class="st">&quot;country_code&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(income_group)) <span class="sc">|&gt;</span> </span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">income_group =</span> <span class="fu">factor</span>(income_group, <span class="at">levels =</span> niveles_ingreso)) <span class="sc">|&gt;</span> </span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(income_group, year) <span class="sc">|&gt;</span> </span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_internet =</span> <span class="fu">mean</span>(indicator_value, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">number_of_countries =</span> <span class="fu">n</span>(),</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(income_group, year)</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>data_per_income</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 44 × 4
    income_group  year mean_internet number_of_countries
@@ -2435,14 +2360,6 @@ Nombres de las columnas procesadas:
 </div>
 <p>Condensamos la información en un formato legible</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>data_condensed <span class="ot">=</span> data_per_income <span class="sc">|&gt;</span> </span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, income_group, mean_internet) <span class="sc">|&gt;</span> </span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> income_group, </span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> mean_internet</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">indicator_name =</span> <span class="st">&#39;Proporción de la población que usa internet (%)&#39;</span>)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>data_condensed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 11 × 6
     year `Low income` `Lower middle income` `Upper middle income` `High income`
@@ -2465,9 +2382,6 @@ Nombres de las columnas procesadas:
 </section>
 <section id="guardamos-los-resultados" class="level2">
 <h2 class="anchored" data-anchor-id="guardamos-los-resultados">Guardamos los resultados</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(data_condensed, <span class="st">&quot;../output/porcentual_increase_of_internet_based_on_incame.csv&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section>
 
 </main>

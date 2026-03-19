@@ -1,13 +1,17 @@
 ---
 title: "TP1: uso mundial de internet"
 author: "Juan Octavio Castro"
-lenguage: "es"
+lenguage: es
 format:
   html:
     toc: true
     toc-location: left
     embed-resources: true
     theme: cosmo
+execute:
+  echo: false    # Oculta el código de todas las celdas
+  warning: false # Oculta advertencias 
+  message: false # Oculta mensajes 
 ---
 
 ## Carga de datos y overview de datos
@@ -23,6 +27,7 @@ library(janitor)
 Definimos una función que lee los datos y de un resumen de qué tratan los datos.
 
 ```{r}
+#| echo: true
 load_data <- function(path, skip = 0, skim_it = FALSE) {
   # Lee los datos y tira todas las columnas que esten llenas de NAs
   data <- read_csv(path, skip = skip) |> remove_empty(which = "cols") |> clean_names()
