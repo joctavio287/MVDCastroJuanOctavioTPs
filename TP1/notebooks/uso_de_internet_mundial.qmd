@@ -1,0 +1,126 @@
+---
+title: "TP1: uso mundial de internet"
+author: "Juan Octavio Castro"
+language: "es"
+format:
+  html:
+    toc: true
+    toc-location: left
+    embed-resources: true
+    theme: cosmo
+---
+
+## Carga de datos y overview de datos
+
+Cargamos las librerías que serán necesarias para leer, limpiar y analizar los datos. La librería `tidyverse` contiene paquetes y funciones que se utilizan para la manipulación, limpieza y visualización de datos de manera coherente y eficiente (siguiendo la filosofía *tidy*). Por otro lado, `skimr` se utiliza principalmente para proporcionar un resumen estadístico rápido y completo de los dataframes, permitiendo ver de un vistazo la distribución de los datos y la cantidad de valores faltantes. Y, `janitor`, es una librería esencial en el mundo "Tidyverse" que se especializa en tareas sucias y repetitivas de limpieza, como normalizar nombres de columnas o quitar filas/columnas vacías que suelen venir en archivos Excel o CSV mal formados.
+
+```{r}
+library(tidyverse)
+library(skimr)
+library(janitor)
+```
+
+Definimos una función que lee los datos y de un resumen de qué tratan los datos.
+
+```{r}
+load_data <- function(path, skip = 0, skim_it = FALSE) {
+  # Lee los datos y tira todas las columnas que esten llenas de NAs
+  data <- read_csv(path, skip = skip) |> remove_empty(which = "cols") |> clean_names()
+  
+  # Printea los nombres de las columnas usando cat
+  cat("\n\nNombres de las columnas procesadas:\n\n", names(data), sep = " | ")
+  cat("\n") # Espaciado
+  
+  # Resumen
+if (skim_it) {
+    print(skim(data))  
+  }
+  
+  return(data)
+}
+```
+
+Usamos la función para leer los datos, definiendo primero las rutas relativas
+
+```{r}
+metadata_path = "../data/metadata_countries_internet_users.csv"
+metadata = load_data(metadata_path)
+```
+
+```{r}
+data_path = "../data/internet_users_world_wide.csv"
+data_wide = load_data(data_path, skip=4)
+```
+
+## Definimos la hipótesis y un plan de acción
+
+La hipótesis que queremos investigar es
+
+> En la última década (2013-2023), las regiones compuestas por países de ingresos bajos (*low income*) han mostrado una tasa de crecimiento porcentual en el acceso a internet superior a la de las regiones de ingresos altos, aunque su penetración absoluta siga siendo significativamente menor.
+
+El objetivo final, entonces, será condensar la información en una tabla que tenga el crecimiento porcentual de acceso a inernet a lo largo de los años, agrupando los países por nivel de ingreso.
+
+## Lo llevamos a cabo
+
+### Identificamos los niveles de ingreso en la tabla de datos
+
+```{r}
+income_sumarize = metadata |> group_by(income_group) |> summarize(number_of_countries = n())
+income_sumarize
+```
+
+### Ajustamos la tabla de datos para prepararla con el *join*
+
+Transformamos a formato *long* y, luego filtramos los años que nos interesan.
+
+```{r}
+data_long = data_wide |>
+  pivot_longer(cols=(x1990:x2025), names_to = "year", values_to = 'indicator_value') |>
+  mutate(year = as.numeric(str_remove(year, "x"))) |> 
+  select(year, country_code, indicator_name, indicator_value) |> 
+  filter(2013<=year, year<=2023)
+data_long
+```
+
+### Unimos las dos tablas de datos
+
+Hacemos un `left_join` con la tabla de datos, usando como identificador la columna de `country_code`. Luego, nos quedamos con los años del 2013 al 2023 y las columnas de income_group, indicator_name y valores.
+
+```{r}
+# Definimos los niveles en el orden jerárquico correcto
+niveles_ingreso <- c("Low income", "Lower middle income", "Upper middle income", "High income")
+
+data_per_income <- data_long |>
+  left_join(metadata, by = "country_code") |>
+  filter(!is.na(income_group)) |> 
+  mutate(income_group = factor(income_group, levels = niveles_ingreso)) |> 
+  group_by(income_group, year) |> 
+  summarize(
+    mean_internet = mean(indicator_value, na.rm = TRUE),
+    number_of_countries = n(),
+    .groups = "drop"
+  ) |> 
+  arrange(income_group, year)
+
+data_per_income
+```
+
+Condensamos la información en un formato legible
+
+```{r}
+data_condensed = data_per_income |> 
+  select(year, income_group, mean_internet) |> 
+  pivot_wider(
+    names_from = income_group, 
+    values_from = mean_internet
+  ) |> 
+  mutate(indicator_name = 'Proporción de la población que usa internet (%)')
+data_condensed
+```
+
+## Guardamos los resultados
+
+```{r}
+write_csv(data_condensed, "../output/porcentual_increase_of_internet_based_on_incame.csv")
+
+```
