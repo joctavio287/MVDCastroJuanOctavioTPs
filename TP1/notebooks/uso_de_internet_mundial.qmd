@@ -3,15 +3,16 @@ title: "TP1: uso mundial de internet"
 author: "Juan Octavio Castro"
 lenguage: es
 format:
-  html:
+  pdf:
     toc: true
     toc-location: left
     embed-resources: true
     theme: cosmo
-execute:
-  echo: false    # Oculta el código de todas las celdas
-  warning: false # Oculta advertencias 
-  message: false # Oculta mensajes 
+code-overflow: wrap
+# execute:
+#   echo: false    # Oculta el código de todas las celdas
+#   warning: false # Oculta advertencias 
+#   message: false # Oculta mensajes 
 ---
 
 ## Carga de datos y overview de datos
@@ -27,10 +28,10 @@ library(janitor)
 Definimos una función que lee los datos y de un resumen de qué tratan los datos.
 
 ```{r}
-#| echo: true
 load_data <- function(path, skip = 0, skim_it = FALSE) {
   # Lee los datos y tira todas las columnas que esten llenas de NAs
-  data <- read_csv(path, skip = skip) |> remove_empty(which = "cols") |> clean_names()
+  data <- read_csv(path, skip = skip) |> 
+    remove_empty(which = "cols") |> clean_names()
   
   # Printea los nombres de las columnas usando cat
   cat("\n\nNombres de las columnas procesadas:\n\n", names(data), sep = " | ")
@@ -53,8 +54,11 @@ metadata = load_data(metadata_path)
 ```
 
 ```{r}
+
 data_path = "../data/internet_users_world_wide.csv"
 data_wide = load_data(data_path, skip=4)
+head(data_wide)
+
 ```
 
 ## Definimos la hipótesis y un plan de acción
@@ -70,7 +74,8 @@ El objetivo final, entonces, será condensar la información en una tabla que te
 ### Identificamos los niveles de ingreso en la tabla de datos
 
 ```{r}
-income_sumarize = metadata |> group_by(income_group) |> summarize(number_of_countries = n())
+income_sumarize = metadata |> group_by(income_group) |> 
+  summarize(number_of_countries = n())
 income_sumarize
 ```
 
@@ -80,7 +85,9 @@ Transformamos a formato *long* y, luego filtramos los años que nos interesan.
 
 ```{r}
 data_long = data_wide |>
-  pivot_longer(cols=(x1990:x2025), names_to = "year", values_to = 'indicator_value') |>
+  pivot_longer(
+    cols=(x1990:x2025), names_to = "year", values_to = 'indicator_value'
+  ) |>
   mutate(year = as.numeric(str_remove(year, "x"))) |> 
   select(year, country_code, indicator_name, indicator_value) |> 
   filter(2013<=year, year<=2023)
@@ -93,7 +100,9 @@ Hacemos un `left_join` con la tabla de datos, usando como identificador la colum
 
 ```{r}
 # Definimos los niveles en el orden jerárquico correcto
-niveles_ingreso <- c("Low income", "Lower middle income", "Upper middle income", "High income")
+niveles_ingreso <- c(
+  "Low income", "Lower middle income", "Upper middle income", "High income"
+)
 
 data_per_income <- data_long |>
   left_join(metadata, by = "country_code") |>
@@ -126,6 +135,8 @@ data_condensed
 ## Guardamos los resultados
 
 ```{r}
-write_csv(data_condensed, "../output/porcentual_increase_of_internet_based_on_incame.csv")
-
+write_csv(
+  data_condensed,
+  "../output/porcentual_increase_of_internet_based_on_incame.csv"
+)
 ```
