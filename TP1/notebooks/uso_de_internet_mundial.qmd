@@ -119,7 +119,7 @@ data_per_income <- data_long |>
 data_per_income
 ```
 
-Condensamos la información en un formato legible
+Condensamos la información en un formato legible y hacemos un resumen
 
 ```{r}
 data_condensed = data_per_income |> 
@@ -129,14 +129,41 @@ data_condensed = data_per_income |>
     values_from = mean_internet
   ) |> 
   mutate(indicator_name = 'Proporción de la población que usa internet (%)')
-data_condensed
+
+data_summary = data_per_income |> 
+  filter(year %in% c(2013, 2023)) |> 
+  arrange(income_group, year) |> 
+  group_by(income_group) |> 
+  summarise(
+    # Cuanto más hay respecto al principio
+    relative_percentage_increase_2013_2023 = 100 * ( (last(mean_internet)-first(mean_internet)) /first(mean_internet) ),
+    last_year_income = last(mean_internet),
+    .groups = "drop"
+  ) |> 
+  mutate(
+    relative_percentage_increase_2013_2023 = round(relative_percentage_increase_2013_2023, 2)
+  )
 ```
 
 ## Guardamos los resultados
+
+Por un lado, tenemos data_codensed que muestra el crecimiento absoluto por año para cada nivel de ingreso.
 
 ```{r}
 write_csv(
   data_condensed,
   "../output/porcentual_increase_of_internet_based_on_incame.csv"
 )
+head(data_condensed)
+```
+
+Y por otro, una tabla que resume el crecimiento relativo porcentual respecto al año 2013 (última década) y el último año registrado, par amostrar que si bien el crecimiento en países menos desarrollados fue mayor, en valores absolutos, el acceso sigue siendo menor.
+
+```{r}
+
+write_csv(
+  data_summary,
+  "../output/rel_porcentual_increase_of_internet_based_on_incame.csv"
+)
+data_summary
 ```
