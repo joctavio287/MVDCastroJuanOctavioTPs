@@ -3,7 +3,7 @@ title: "TP1: uso mundial de internet"
 author: "Juan Octavio Castro"
 lenguage: es
 format:
-  pdf:
+  html:
     toc: true
     toc-location: left
     embed-resources: true
